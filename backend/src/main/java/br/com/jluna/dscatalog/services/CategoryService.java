@@ -1,14 +1,14 @@
 package br.com.jluna.dscatalog.services;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,11 +24,13 @@ public class CategoryService {
 	@Autowired
 	private CategoryRepository repository;
 
+	// paginação
 	@Transactional(readOnly = true)
-	public List<CategoryDTO> findAll() {
-		List<Category> list = repository.findAll();
-		List<CategoryDTO> listDTO = list.stream().map(c -> new CategoryDTO(c)).collect(Collectors.toList());
-		return listDTO;
+	public Page<CategoryDTO> findAllPagened(PageRequest pageRequest) {
+
+		Page<Category> list = repository.findAll(pageRequest);
+		return list.map(c -> new CategoryDTO(c));
+
 	}
 
 	@Transactional(readOnly = true)
