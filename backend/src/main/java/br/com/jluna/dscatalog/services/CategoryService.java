@@ -29,6 +29,8 @@ public class CategoryService {
 	public Page<CategoryDTO> findAllPagened(PageRequest pageRequest) {
 
 		Page<Category> list = repository.findAll(pageRequest);
+		// return list.stream().map(c -> new
+		// CategoryDTO(c)).collect(Collectors.toList()); // antes sem paginação
 		return list.map(c -> new CategoryDTO(c));
 
 	}
