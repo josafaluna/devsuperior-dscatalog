@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import br.com.jluna.dscatalog.dto.ProductDTO;
 import br.com.jluna.dscatalog.entities.Product;
+import br.com.jluna.dscatalog.repositories.CategoryRepository;
 import br.com.jluna.dscatalog.repositories.ProductRepository;
 import br.com.jluna.dscatalog.services.exceptions.DatabaseException;
 import br.com.jluna.dscatalog.services.exceptions.ResourceNotFoundException;
@@ -23,6 +24,9 @@ public class ProductService {
 
 	@Autowired
 	private ProductRepository repository;
+
+	@Autowired
+	private CategoryRepository catRepository;
 
 	@Transactional(readOnly = true)
 	public Page<ProductDTO> findAllPagened(PageRequest pageRequest) {
@@ -42,11 +46,10 @@ public class ProductService {
 	@Transactional
 	public ProductDTO insert(ProductDTO dto) {
 
-		var product = new Product();
-		// product.setName(dto.getName());
-		product = repository.save(product);
-
-		return new ProductDTO(product);
+		var entity = new Product();
+		copyDtoToEntity(dto, entity);
+		entity = repository.save(entity);
+		return new ProductDTO(entity);
 	}
 
 	@Transactional
@@ -54,8 +57,7 @@ public class ProductService {
 
 		try {
 			Product entity = repository.getOne(id); // getOne = instancia um objeto sem ir ao banco
-			// entity.setName(dto.getName());
-
+			copyDtoToEntity(dto, entity);
 			entity = repository.save(entity);
 			return new ProductDTO(entity);
 
@@ -76,6 +78,19 @@ public class ProductService {
 		} catch (DataIntegrityViolationException e) {
 			throw new DatabaseException("Integrity Violation");
 		}
+
+	}
+
+	private void copyDtoToEntity(ProductDTO dto, Product entity) {
+		entity.setName(dto.getName());
+		entity.setDescription(dto.getDescription());
+		entity.setPrice(dto.getPrice());
+		entity.setImgUrl(dto.getImgUrl());
+		entity.setDate(dto.getDate());
+
+		entity.getCategory().clear();
+
+		dto.getCategories().forEach(c -> entity.getCategory().add(catRepository.getOne(c.getId())));
 
 	}
 
