@@ -1,5 +1,9 @@
+import "./core/assets/styles/custom.scss";
+import "./app.scss";
+import Navbar from "./core/components/Navbar";
+
 const App = () => {
-  <h1>APP</h1>;
+  return <Navbar />;
 };
 
 export default App;
